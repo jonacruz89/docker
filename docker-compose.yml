@@ -1,0 +1,106 @@
+version: "3.2"
+
+services:
+ php:
+  build:
+   context: './bin/php'
+  container_name: php-fpm-dev
+  tty: true
+  restart: always
+  volumes:
+#   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
+   - ${DOCUMENT_ROOT}:/usr/local/apache2/htdocs/ 
+#  working_dir: /usr/share/nginx/html
+  working_dir: /usr/local/apache2/htdocs/
+  networks:
+   - backend
+
+# nginx:
+#  build:
+#   context: './bin/nginx'
+#  container_name: nginx-dev
+#  networks:
+#   - backend
+#   - frontend
+#  restart: always
+#  ports:
+#   - '80:80'
+#   - '443:443'
+#  depends_on:
+#   - php
+#    - mysql
+#  working_dir: /usr/share/nginx/html
+#  tty: true
+#  volumes:
+#   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
+
+ apache:
+  build:
+   context: './bin/apache'
+  container_name: apache-dev
+  networks:
+   - backend
+   - frontend
+  restart: always
+  ports:
+   - '80:80'
+   - '443:443'
+  depends_on:
+   - php
+#   - mysql
+  working_dir: /usr/local/apache2/htdocs/
+  tty: true
+  volumes:
+   - ${DOCUMENT_ROOT}:/usr/local/apache2/htdocs/
+   - ./bin/apache/apache.conf:/usr/local/apache2/conf/apache.conf
+   - ./bin/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+   - ./bin/apache/logs/apache:/var/log/apache2
+
+ mysql:
+  build:
+   context: './bin/mysql'
+  container_name: mysql-dev
+  networks: 
+   - backend
+  restart: always
+  ports:
+   - '3306:3306'
+  tty: true
+  volumes: 
+   - ${MYSQL_DATA}:/var/lib/mysql
+   - ${MYSQL_LOGS}:/var/log/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+   MYSQL_DATABASE: ${MYSQL_DATABASE}
+   MYSQL_USER: ${MYSQL_USER}
+   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+ composer:
+  build:
+   context: './bin/composer'
+  container_name: composer-dev
+  working_dir: /usr/share/nginx/html
+  volumes:         
+   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
+  command: composer global require laravel/installer
+#  command: composer create-project --prefer-dist laravel/laravel laravel-project
+
+ phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  container_name: phpmyadmin-dev
+  links:
+   - mysql
+  environment:
+   PMA_HOST: mysql
+   PMA_PORT: 3306
+  ports:
+   - '8080:80'
+  volumes: 
+   - /sessions
+  networks:
+   - backend
+   - frontend
+                
+networks:
+  backend:
+  frontend:
