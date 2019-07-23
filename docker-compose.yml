@@ -8,10 +8,8 @@ services:
   tty: true
   restart: always
   volumes:
-#   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
-   - ${DOCUMENT_ROOT}:/usr/local/apache2/htdocs/ 
-#  working_dir: /usr/share/nginx/html
-  working_dir: /usr/local/apache2/htdocs/
+   - ${DOCUMENT_ROOT}:/var/www/html
+  working_dir: /var/www/html
   networks:
    - backend
 
@@ -28,11 +26,12 @@ services:
 #   - '443:443'
 #  depends_on:
 #   - php
-#    - mysql
-#  working_dir: /usr/share/nginx/html
+#   - mysql
+#   - postgres
+#  working_dir: /var/www/html
 #  tty: true
 #  volumes:
-#   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
+#   - ${DOCUMENT_ROOT}:/var/www/html
 
  apache:
   build:
@@ -48,58 +47,70 @@ services:
   depends_on:
    - php
 #   - mysql
-  working_dir: /usr/local/apache2/htdocs/
+   - postgres
+  working_dir: /var/www/html
   tty: true
   volumes:
-   - ${DOCUMENT_ROOT}:/usr/local/apache2/htdocs/
-   - ./bin/apache/apache.conf:/usr/local/apache2/conf/apache.conf
-   - ./bin/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-   - ./bin/apache/logs/apache:/var/log/apache2
+   - ${DOCUMENT_ROOT}:/var/www/html
 
- mysql:
-  build:
-   context: './bin/mysql'
-  container_name: mysql-dev
-  networks: 
-   - backend
-  restart: always
-  ports:
-   - '3306:3306'
-  tty: true
-  volumes: 
-   - ${MYSQL_DATA}:/var/lib/mysql
-   - ${MYSQL_LOGS}:/var/log/mysql
-  environment:
-   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-   MYSQL_DATABASE: ${MYSQL_DATABASE}
-   MYSQL_USER: ${MYSQL_USER}
-   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+# mysql:
+#  build:
+#   context: './bin/mysql'
+#  container_name: mysql-dev
+#  networks: 
+#   - backend
+#  restart: always
+#  ports:
+#   - '3306:3306'
+#  tty: true
+#  volumes: 
+#   - ${MYSQL_DATA}:/var/lib/mysql
+#   - ${MYSQL_LOGS}:/var/log/mysql
+#  environment:
+#   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#   MYSQL_DATABASE: ${MYSQL_DATABASE}
+#   MYSQL_USER: ${MYSQL_USER}
+#   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
- composer:
-  build:
-   context: './bin/composer'
-  container_name: composer-dev
-  working_dir: /usr/share/nginx/html
-  volumes:         
-   - ${DOCUMENT_ROOT}:/usr/share/nginx/html
-  command: composer global require laravel/installer
+# composer:
+#  build:
+#   context: './bin/composer'
+#  container_name: composer-dev
+#  working_dir: /var/www/html
+#  volumes:         
+#   - ${DOCUMENT_ROOT}:/var/www/html
+#  command: composer global require laravel/installer
 #  command: composer create-project --prefer-dist laravel/laravel laravel-project
 
- phpmyadmin:
-  image: phpmyadmin/phpmyadmin
-  container_name: phpmyadmin-dev
-  links:
-   - mysql
+# phpmyadmin:
+#  image: phpmyadmin/phpmyadmin
+#  container_name: phpmyadmin-dev
+#  links:
+#   - mysql
+#  environment:
+#   PMA_HOST: mysql
+#   PMA_PORT: 3306
+#  ports:
+#   - '8080:80'
+#  volumes: 
+#   - /sessions
+#  networks:
+#   - backend
+#   - frontend
+
+ postgres:
+  build:
+   context: './bin/postgres'
+  container_name: postgres-dev
+  restart: always
   environment:
-   PMA_HOST: mysql
-   PMA_PORT: 3306
-  ports:
-   - '8080:80'
-  volumes: 
-   - /sessions
+   POSTGRES_USER: ${POSTGRES_USER:-postgres}
+   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+   POSTGRES_DB: ${POSTGRES_DB:-postgres}
+  volumes:
+   - ${POSTGRES_DATA}:/var/lib/postgresql/data
   networks:
    - backend
-   - frontend
                 
 networks:
   backend:
