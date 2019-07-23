@@ -46,31 +46,31 @@ services:
    - '443:443'
   depends_on:
    - php
-#   - mysql
-   - postgres
+   - mysql
+#   - postgres
   working_dir: /var/www/html
   tty: true
   volumes:
    - ${DOCUMENT_ROOT}:/var/www/html
 
-# mysql:
-#  build:
-#   context: './bin/mysql'
-#  container_name: mysql-dev
-#  networks: 
-#   - backend
-#  restart: always
-#  ports:
-#   - '3306:3306'
-#  tty: true
-#  volumes: 
-#   - ${MYSQL_DATA}:/var/lib/mysql
-#   - ${MYSQL_LOGS}:/var/log/mysql
-#  environment:
-#   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-#   MYSQL_DATABASE: ${MYSQL_DATABASE}
-#   MYSQL_USER: ${MYSQL_USER}
-#   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+ mysql:
+  build:
+   context: './bin/mysql'
+  container_name: mysql-dev
+  networks: 
+   - backend
+  restart: always
+  ports:
+   - '3306:3306'
+  tty: true
+  volumes: 
+   - ${MYSQL_DATA}:/var/lib/mysql
+   - ${MYSQL_LOGS}:/var/log/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+   MYSQL_DATABASE: ${MYSQL_DATABASE}
+   MYSQL_USER: ${MYSQL_USER}
+   MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
 # composer:
 #  build:
@@ -82,36 +82,75 @@ services:
 #  command: composer global require laravel/installer
 #  command: composer create-project --prefer-dist laravel/laravel laravel-project
 
-# phpmyadmin:
-#  image: phpmyadmin/phpmyadmin
-#  container_name: phpmyadmin-dev
+ phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  container_name: phpmyadmin-dev
+  links:
+   - mysql
+  environment:
+   PMA_HOST: mysql
+   PMA_PORT: 3306
+  ports:
+   - '8080:80'
+  volumes: 
+   - /sessions
+  networks:
+   - backend
+   - frontend
+
+# postgres:
+#  build:
+#   context: './bin/postgres'
+#  container_name: postgres-dev
+#  restart: always
+#  environment:
+#   POSTGRES_USER: ${POSTGRES_USER:-postgres}
+#   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+#   POSTGRES_DB: ${POSTGRES_DB:-postgres}
+#  ports:
+#   - "5432:5432"
+#  volumes:
+#   - ${POSTGRES_DATA}:/var/lib/postgresql
+#   - ${POSTGRES_LOGS}:/var/log/postgresql
+#  networks:
+#   - backend
+
+# pgadmin:
+#   build:
+#    context: './bin/pgadmin'
+#   container_name: pgadmin-dev
+#   environment:
+#    PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.com}
+#    PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-pgadminpass}
+#   ports:
+#    - "6543:80"
+#   links:
+#    - postgres
+#   networks:
+#    - backend
+#    - frontend
+    
+# wordpress:
+#  build:
+#   context: './bin/wordpress'
+#  container_name: wordpress-dev
+#  restart: always
 #  links:
 #   - mysql
-#  environment:
-#   PMA_HOST: mysql
-#   PMA_PORT: 3306
 #  ports:
-#   - '8080:80'
-#  volumes: 
-#   - /sessions
+#   - "8081:80"
+#  environment:
+#   WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+#   WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+#   WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+#   WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+#  volumes:
+#   - ${DOCUMENT_ROOT}${WORDPRESS_FOLDER}:/var/www/html
 #  networks:
 #   - backend
 #   - frontend
-
- postgres:
-  build:
-   context: './bin/postgres'
-  container_name: postgres-dev
-  restart: always
-  environment:
-   POSTGRES_USER: ${POSTGRES_USER:-postgres}
-   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-   POSTGRES_DB: ${POSTGRES_DB:-postgres}
-  volumes:
-   - ${POSTGRES_DATA}:/var/lib/postgresql/data
-  networks:
-   - backend
                 
 networks:
   backend:
   frontend:
+
