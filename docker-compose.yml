@@ -1,4 +1,4 @@
-version: "3.2"
+version: "3.7"
 
 services:
  php:
@@ -150,25 +150,74 @@ services:
 #   - backend
 #   - frontend
 
- joomla:
-  image: joomla
-  container_name: joomla-dev
+# joomla:
+#  image: joomla
+#  container_name: joomla-dev
+#  restart: always
+#  links:
+#   - mysql
+#  ports:
+#   - "8081:80"
+#  environment:
+#   JOOMLA_DB_HOST: ${JOOMLA_DB_HOST}
+#   JOOMLA_DB_USER: ${JOOMLA_DB_USER}
+#   JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
+#   JOOMLA_DB_NAME: ${JOOMLA_DB_NAME}
+#  volumes:
+#   - ${DOCUMENT_ROOT}${JOOMLA_FOLDER}:/var/www/html
+#  networks:
+#   - backend
+#   - frontend
+
+ drupal:
+  image: drupal
+  container_name: drupal-dev
   restart: always
   links:
    - mysql
   ports:
    - "8081:80"
-  environment:
-   JOOMLA_DB_HOST: ${JOOMLA_DB_HOST}
-   JOOMLA_DB_USER: ${JOOMLA_DB_USER}
-   JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
-   JOOMLA_DB_NAME: ${JOOMLA_DB_NAME}
   volumes:
-   - ${DOCUMENT_ROOT}${JOOMLA_FOLDER}:/var/www/html
+   - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/modules:/var/www/html/modules
+   - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/profiles:/var/www/html/profiles
+   - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/themes:/var/www/html/themes
+#  working_dir: /var/www/html
   networks:
    - backend
    - frontend
-                
+
+# node:
+#  build:
+#   context: './bin/node'
+#  container_name: node-dev
+#  environment:
+#   - NODE_ENV=production
+#  volumes:
+#   - ${DOCUMENT_ROOT}:/home/node/app
+#  expose:
+#   - "8081"
+#  command: "npm start"
+
+# mongo:
+#  image: mongo
+#  container_name: mongo-dev
+#  restart: always
+#  environment:
+#   MONGO_INITDB_ROOT_USERNAME: root
+#   MONGO_INITDB_ROOT_PASSWORD: example
+#  networks:
+#   - backend
+
+# mongo-express:
+#  image: mongo-express
+#  container_name: mondo-express-dev
+#  restart: always
+#  ports:
+#   - "8081:8081"
+#  environment:
+#   ME_CONFIG_MONGODB_ADMINUSERNAME: root
+#   ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
 networks:
   backend:
   frontend:
