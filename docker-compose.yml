@@ -149,6 +149,25 @@ services:
 #  networks:
 #   - backend
 #   - frontend
+
+ joomla:
+  image: joomla
+  container_name: joomla-dev
+  restart: always
+  links:
+   - mysql
+  ports:
+   - "8081:80"
+  environment:
+   JOOMLA_DB_HOST: ${JOOMLA_DB_HOST}
+   JOOMLA_DB_USER: ${JOOMLA_DB_USER}
+   JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
+   JOOMLA_DB_NAME: ${JOOMLA_DB_NAME}
+  volumes:
+   - ${DOCUMENT_ROOT}${JOOMLA_FOLDER}:/var/www/html
+  networks:
+   - backend
+   - frontend
                 
 networks:
   backend:
