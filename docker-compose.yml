@@ -1,6 +1,16 @@
 version: "3.7"
 
 services:
+
+ netbeans:
+  build:
+   context: './bin/netbeans'
+  container_name: netbeans-dev
+  volumes:
+   - /tmp/.X11-unix:/tmp/.X11-unix
+   - /home/${USER}/Documents/projects/.netbeans:/home/${USER}/.netbeans:rw
+   - /home/${USER}/Documents/projects/:/home/${USER}/projects:rw
+
  php:
   build:
    context: './bin/php'
@@ -9,29 +19,23 @@ services:
   restart: always
   volumes:
    - ${DOCUMENT_ROOT}:/var/www/html
-  working_dir: /var/www/html
   networks:
    - backend
 
-# nginx:
-#  build:
-#   context: './bin/nginx'
-#  container_name: nginx-dev
-#  networks:
-#   - backend
-#   - frontend
-#  restart: always
-#  ports:
-#   - '80:80'
-#   - '443:443'
-#  depends_on:
-#   - php
-#   - mysql
-#   - postgres
-#  working_dir: /var/www/html
-#  tty: true
-#  volumes:
-#   - ${DOCUMENT_ROOT}:/var/www/html
+ nginx:
+  build:
+   context: './bin/nginx'
+  container_name: nginx-dev
+  networks:
+   - backend
+   - frontend
+  restart: always
+  ports:
+   - '80:80'
+   - '443:443'
+  tty: true
+  volumes:
+   - ${DOCUMENT_ROOT}:/var/www/html
 
  apache:
   build:
@@ -44,10 +48,6 @@ services:
   ports:
    - '80:80'
    - '443:443'
-  depends_on:
-   - php
-   - mysql
-#   - postgres
   working_dir: /var/www/html
   tty: true
   volumes:
@@ -61,7 +61,7 @@ services:
    - backend
   restart: always
   ports:
-   - '3306:3306'
+   - "3306:3306"
   tty: true
   volumes: 
    - ${MYSQL_DATA}:/var/lib/mysql
@@ -72,21 +72,31 @@ services:
    MYSQL_USER: ${MYSQL_USER}
    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
-# composer:
+# rethinkdb:
 #  build:
-#   context: './bin/composer'
-#  container_name: composer-dev
-#  working_dir: /var/www/html
-#  volumes:         
-#   - ${DOCUMENT_ROOT}:/var/www/html
-#  command: composer global require laravel/installer
+#   context: './bin/rethinkdb'
+#  container_name: rethinkdb-dev
+#  networks:
+#   - backend
+#  ports:
+#   - "8080:8080"
+#  volumes:
+#   - ${RETHINKDB_DATA}:
+
+ composer:
+  build:
+   context: './bin/composer'
+  container_name: composer-dev
+  restart: always
+  working_dir: /var/www/html
+  volumes:         
+   - ${DOCUMENT_ROOT}:/var/www/html
+  command: composer global require laravel/installer
 #  command: composer create-project --prefer-dist laravel/laravel laravel-project
 
  phpmyadmin:
   image: phpmyadmin/phpmyadmin
   container_name: phpmyadmin-dev
-  links:
-   - mysql
   environment:
    PMA_HOST: mysql
    PMA_PORT: 3306
@@ -98,115 +108,116 @@ services:
    - backend
    - frontend
 
-# postgres:
-#  build:
-#   context: './bin/postgres'
-#  container_name: postgres-dev
-#  restart: always
-#  environment:
-#   POSTGRES_USER: ${POSTGRES_USER:-postgres}
-#   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-#   POSTGRES_DB: ${POSTGRES_DB:-postgres}
-#  ports:
-#   - "5432:5432"
-#  volumes:
-#   - ${POSTGRES_DATA}:/var/lib/postgresql
-#   - ${POSTGRES_LOGS}:/var/log/postgresql
-#  networks:
-#   - backend
+ postgres:
+  build:
+   context: './bin/postgres'
+  container_name: postgres-dev
+  restart: always
+  environment:
+   POSTGRES_USER: ${POSTGRES_USER:-postgres}
+   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+   POSTGRES_DB: ${POSTGRES_DB:-postgres}
+  ports:
+   - "5432:5432"
+  volumes:
+   - ${POSTGRES_DATA}:/var/lib/postgresql
+   - ${POSTGRES_LOGS}:/var/log/postgresql
+  networks:
+   - backend
 
-# pgadmin:
-#   build:
-#    context: './bin/pgadmin'
-#   container_name: pgadmin-dev
-#   environment:
-#    PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.com}
-#    PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-pgadminpass}
-#   ports:
-#    - "6543:80"
-#   links:
-#    - postgres
-#   networks:
-#    - backend
-#    - frontend
+ pgadmin:
+   build:
+    context: './bin/pgadmin'
+   container_name: pgadmin-dev
+   environment:
+    PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.com}
+    PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-pgadminpass}
+   ports:
+    - "6543:80"
+   networks:
+    - backend
+    - frontend
     
-# wordpress:
-#  build:
-#   context: './bin/wordpress'
-#  container_name: wordpress-dev
-#  restart: always
-#  links:
-#   - mysql
-#  ports:
-#   - "8081:80"
-#  environment:
-#   WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-#   WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-#   WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-#   WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-#  volumes:
-#   - ${DOCUMENT_ROOT}${WORDPRESS_FOLDER}:/var/www/html
-#  networks:
-#   - backend
-#   - frontend
+ wordpress:
+  build:
+   context: './bin/wordpress'
+  container_name: wordpress-dev
+  restart: always
+  ports:
+   - "8081:80"
+  environment:
+   WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+   WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+   WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+   WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+  volumes:
+   - ${DOCUMENT_ROOT}${WORDPRESS_FOLDER}:/var/www/html
+  networks:
+   - backend
+   - frontend
 
-# joomla:
-#  image: joomla
-#  container_name: joomla-dev
-#  restart: always
-#  links:
-#   - mysql
-#  ports:
-#   - "8081:80"
-#  environment:
-#   JOOMLA_DB_HOST: ${JOOMLA_DB_HOST}
-#   JOOMLA_DB_USER: ${JOOMLA_DB_USER}
-#   JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
-#   JOOMLA_DB_NAME: ${JOOMLA_DB_NAME}
-#  volumes:
-#   - ${DOCUMENT_ROOT}${JOOMLA_FOLDER}:/var/www/html
-#  networks:
-#   - backend
-#   - frontend
+ joomla:
+  image: joomla
+  container_name: joomla-dev
+  restart: always
+  ports:
+   - "8081:80"
+  environment:
+   JOOMLA_DB_HOST: ${JOOMLA_DB_HOST}
+   JOOMLA_DB_USER: ${JOOMLA_DB_USER}
+   JOOMLA_DB_PASSWORD: ${JOOMLA_DB_PASSWORD}
+   JOOMLA_DB_NAME: ${JOOMLA_DB_NAME}
+  volumes:
+   - ${DOCUMENT_ROOT}${JOOMLA_FOLDER}:/var/www/html
+  networks:
+   - backend
+   - frontend
 
  drupal:
   image: drupal
   container_name: drupal-dev
   restart: always
-  links:
-   - mysql
   ports:
    - "8081:80"
   volumes:
    - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/modules:/var/www/html/modules
    - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/profiles:/var/www/html/profiles
    - ${DOCUMENT_ROOT}${DRUPAL_FOLDER}/themes:/var/www/html/themes
-#  working_dir: /var/www/html
   networks:
    - backend
    - frontend
 
-# node:
-#  build:
-#   context: './bin/node'
-#  container_name: node-dev
-#  environment:
-#   - NODE_ENV=production
-#  volumes:
-#   - ${DOCUMENT_ROOT}:/home/node/app
-#  expose:
-#   - "8081"
-#  command: "npm start"
+ node:
+  build:
+   context: './bin/node'
+  container_name: node-dev
+  restart: always
+  environment:
+   - NODE_ENV=production
+  volumes:
+   - ${DOCUMENT_ROOT}:/usr/src/app
+  working_dir: ${DOCUMENT_ROOT}
+  ports:
+   - "3000:3000"
+  networks:
+   - backend
+   - frontend
+  command: "npm start"
 
-# mongo:
-#  image: mongo
-#  container_name: mongo-dev
-#  restart: always
-#  environment:
-#   MONGO_INITDB_ROOT_USERNAME: root
-#   MONGO_INITDB_ROOT_PASSWORD: example
-#  networks:
-#   - backend
+ mongo: 
+  image: mongo 
+  container_name: mongo-dev
+  restart: always 
+  ports: 
+    - "27017:27017" 
+  volumes: 
+    - ${MONGO_DATA}:/data/db
+  environment: 
+    MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+    MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD} 
+    MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE} 
+  networks: 
+    - backend
 
 # mongo-express:
 #  image: mongo-express
@@ -217,6 +228,30 @@ services:
 #  environment:
 #   ME_CONFIG_MONGODB_ADMINUSERNAME: root
 #   ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
+ dbeaver:
+  build:
+   context: './bin/dbeaver'
+  container_name: dbeaver-dev
+
+ firebird:
+  image: kpsys/firebird
+  container_name: firebird-dev
+  volumes:
+   - ${FIREBIRD_DATA}:/usr/local/firebird/data
+  ports:
+   - "3050:3050"
+
+ redis:
+  build:
+   context: './bin/redis'
+  container_name: redis-dev
+  volumes:
+   - ${REDIS_DATA}:/data
+  networks:
+   - backend
+  ports:
+   - "6379:6379"
 
 networks:
   backend:
