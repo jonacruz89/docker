@@ -30,12 +30,13 @@ RUN set -xe \
 RUN docker-php-ext-configure zip --with-libzip
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ --with-xpm-dir=/usr/include/ --enable-gd-jis-conv
 RUN docker-php-ext-install exif gd mbstring intl xsl pgsql pdo_pgsql pdo_mysql mysqli zip
-#RUN curl --silent --show-error https://getcomposer.org/installer | php && \
-#        mv composer.phar /usr/local/bin/composer
-#RUN composer global require laravel/installer
-#RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
-#RUN apt-get install -y nodejs
-#RUN apt-get install -y build-essential
+
+RUN curl --silent --show-error https://getcomposer.org/installer | php && \
+        mv composer.phar /usr/local/bin/composer
+
+RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
+RUN apt-get install -y nodejs
+RUN apt-get install -y build-essential
 
 #RUN pecl install redis
 #RUN docker-php-ext-enable redis
