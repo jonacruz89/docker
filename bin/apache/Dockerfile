@@ -3,10 +3,8 @@ FROM httpd:2.4
 #RUN apt update -y ; \
 #    apt upgrade -y;
 
-COPY ./extra/httpd-autoindex.conf /usr/local/apache2/conf/extra/httpd-autoindex.conf
-COPY ./extra/httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
-COPY ./httpd.conf /usr/local/apache2/conf/httpd.conf
-#COPY ./apache.conf /usr/local/apache2/conf/apache.conf
+COPY ./ssl/ssl.crt /usr/local/apache2/ssl/server.crt
+COPY ./ssl/ssl.key /usr/local/apache2/ssl/server.key
 
-#RUN echo "Include /usr/local/apache2/conf/apache.conf" \
-#    >> /usr/local/apache2/conf/httpd.conf
+COPY ./extra/* /usr/local/apache2/conf/extra/
+COPY ./httpd.conf /usr/local/apache2/conf/httpd.conf
