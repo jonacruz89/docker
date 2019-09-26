@@ -11,6 +11,14 @@ services:
    - /home/${USER}/Documents/projects/.netbeans:/home/${USER}/.netbeans:rw
    - /home/${USER}/Documents/projects/:/home/${USER}/projects:rw
 
+ arduino:
+  build:
+   context: './bin/arduino'
+  container_name: arduino-dev
+  volumes:
+   - /tmp/.X11-unix:/tmp/.X11-unix
+   - /home/${USER}/Documents/projects/:/dev/ttyACM0
+
  php:
   build:
    context: './bin/php'
@@ -48,6 +56,8 @@ services:
   ports:
    - '80:80'
    - '443:443'
+   - '8000:8000'
+   - '6001:6001'
   working_dir: /var/www/html
   tty: true
   volumes:
@@ -252,6 +262,15 @@ services:
    - backend
   ports:
    - "6379:6379"
+ putty:
+  build:
+   context: './bin/putty'
+  container_name: putty-dev
+  volumes:
+   - ${DOCUMENT_ROOT}putty:/config:rw
+  ports:
+   - "5800:5800"
+  
 
 networks:
   backend:

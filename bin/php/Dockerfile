@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
         libxpm4 \
         libpng16-16 \
         libxslt1.1 \
+	libusb-dev \
         libmemcachedutil2 \
         imagemagick \
         nano
@@ -37,6 +38,11 @@ RUN curl --silent --show-error https://getcomposer.org/installer | php && \
 RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
 RUN apt-get install -y nodejs
 RUN apt-get install -y build-essential
+RUN npm install --global cross-env
 
 #RUN pecl install redis
 #RUN docker-php-ext-enable redis
+
+#RUN apt-get install -y libpcre3-dev
+#RUN pecl install dio-0.0.7
+#RUN docker-php-ext-enable dio
