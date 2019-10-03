@@ -57,7 +57,7 @@ services:
    - '80:80'
    - '443:443'
    - '8000:8000'
-   - '6001:6001'
+   - '3000:3000'
   working_dir: /var/www/html
   tty: true
   volumes:
