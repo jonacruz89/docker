@@ -46,3 +46,22 @@ RUN npm install --global cross-env
 #RUN apt-get install -y libpcre3-dev
 #RUN pecl install dio-0.0.7
 #RUN docker-php-ext-enable dio
+
+RUN apt-get install -y \
+    cron
+
+# Create the log file
+RUN touch /var/log/schedule.log
+RUN chmod 0777 /var/log/schedule.log
+
+# Add crontab file in the cron directory
+ADD scheduler /etc/cron.d/scheduler
+
+# Run the cron
+RUN crontab /etc/cron.d/scheduler
+
+
+
+COPY ./entrypoint.sh /
+
+CMD ["sh","/entrypoint.sh"]
