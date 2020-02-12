@@ -3,7 +3,7 @@ version: "3.7"
 services:
   netbeans:
     build:
-      context: "./bin/netbeans"
+      context: "./conf/netbeans"
     container_name: netbeans-dev
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
@@ -12,7 +12,7 @@ services:
 
   arduino:
     build:
-      context: "./bin/arduino"
+      context: "./conf/arduino"
     container_name: arduino-dev
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
@@ -20,7 +20,7 @@ services:
 
   php:
     build:
-      context: "./bin/php"
+      context: "./conf/php"
     container_name: php-fpm-dev
     tty: true
     restart: always
@@ -31,7 +31,7 @@ services:
 
   nginx:
     build:
-      context: "./bin/nginx"
+      context: "./conf/nginx"
     container_name: nginx-dev
     networks:
       - backend
@@ -46,7 +46,7 @@ services:
 
   apache:
     build:
-      context: "./bin/apache"
+      context: "./conf/apache"
     container_name: apache-dev
     networks:
       - backend
@@ -64,7 +64,7 @@ services:
 
   mysql:
     build:
-      context: "./bin/mysql"
+      context: "./conf/mysql"
     container_name: mysql-dev
     networks:
       - backend
@@ -83,7 +83,7 @@ services:
 
   composer:
     build:
-      context: "./bin/composer"
+      context: "./conf/composer"
     container_name: composer-dev
     restart: always
     working_dir: /var/www/html
@@ -107,7 +107,7 @@ services:
 
   postgres:
     build:
-      context: "./bin/postgres"
+      context: "./conf/postgres"
     container_name: postgres-dev
     restart: always
     environment:
@@ -124,7 +124,7 @@ services:
 
   pgadmin:
     build:
-      context: "./bin/pgadmin"
+      context: "./conf/pgadmin"
     container_name: pgadmin-dev
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.com}
@@ -137,7 +137,7 @@ services:
 
   wordpress:
     build:
-      context: "./bin/wordpress"
+      context: "./conf/wordpress"
     container_name: wordpress-dev
     restart: always
     ports:
@@ -186,7 +186,7 @@ services:
 
   node:
     build:
-      context: "./bin/node"
+      context: "./conf/node"
     container_name: node-dev
     restart: always
     environment:
@@ -228,7 +228,7 @@ services:
 
   dbeaver:
     build:
-      context: "./bin/dbeaver"
+      context: "./conf/dbeaver"
     container_name: dbeaver-dev
 
   firebird:
@@ -241,7 +241,7 @@ services:
 
   redis:
     build:
-      context: "./bin/redis"
+      context: "./conf/redis"
     container_name: redis-dev
     volumes:
       - ${REDIS_DATA}:/data
@@ -252,7 +252,7 @@ services:
 
   putty:
     build:
-      context: "./bin/putty"
+      context: "./conf/putty"
     container_name: putty-dev
     volumes:
       - ${DOCUMENT_ROOT}putty:/config:rw
